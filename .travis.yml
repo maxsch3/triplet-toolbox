@@ -13,7 +13,7 @@ script:
 jobs:
   include:
     - stage: deploy
-      if: branch = develop
+      if: branch = master
       python: "3.6"
       script: skip
       install:

@@ -1,0 +1,29 @@
+language: python
+python:
+  - "3.6"
+  - "3.7"
+env:
+  - requirements=requirements_TF1.txt
+  - requirements=requirements_TF2.txt
+
+script:
+  - pip install -r $requirements
+  - python -m pytest
+
+jobs:
+  include:
+    - stage: deploy
+      if: branch = develop
+      python: "3.6"
+      script: skip
+      install:
+        - pip install -r requirements_tf1.txt
+        - pip install -e .
+      deploy: # Deploy documentation to Github in the gh_pages branch
+        - provider: pypi
+          user: "__token__"
+          password: $pypi_token
+          skip_existing: true
+          on:
+            branch: master
+            

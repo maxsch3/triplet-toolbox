@@ -1,0 +1,3 @@
+from .triplet_batch_hard_loss import triplet_batch_hard_loss
+from .triplet_batch_semihard_loss import triplet_batch_semihard_loss
+from .triplet_batch_priming_loss import triplet_batch_priming_loss

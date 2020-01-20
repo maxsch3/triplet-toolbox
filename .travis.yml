@@ -12,12 +12,12 @@ script:
 
 jobs:
   include:
-    - stage: deploy
-      if: branch = master
+    - stage: test deploy
+      if: branch = develop
       python: "3.6"
       script: skip
       install:
-        - pip install -r requirements_tf1.txt
+        - pip install -r requirements_TF1.txt
         - pip install -e .
       deploy: # Deploy documentation to Github in the gh_pages branch
         - provider: pypi
@@ -26,5 +26,19 @@ jobs:
           skip_existing: true
           on:
             branch: master
-
-            
+            tags: true
+    - stage: deploy
+      if: branch = master
+      python: "3.6"
+      script: skip
+      install:
+        - pip install -r requirements_TF1.txt
+        - pip install -e .
+      deploy: # Deploy documentation to Github in the gh_pages branch
+        - provider: pypi
+          user: "__token__"
+          password: $pypi_token
+          skip_existing: true
+          on:
+            branch: master
+            tags: true

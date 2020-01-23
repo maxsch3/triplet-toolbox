@@ -64,9 +64,9 @@ so you don't have to design a triplet generator outside of your network in data 
 Instead, you will need to create a single encoder network outputting embeddings similar to encoder part 
  in autoencoders and the loss funstions will do the rest
  
-The functions use effective hard triplet mining which looks for all possible pairs in the minibatch and 
+The functions use effective hard triplet mining which looks for all possible pairs in a minibatch and 
 only selects the worst performing pairs, which called hard triplets. These hard triplets are then used in loss
-function for calculating gradients for back propagation
+function for calculating gradients
 
 All loss functions in tensorflow/keras take two arguments: 
 - y_true - "True" labels or values from training data.
@@ -98,7 +98,7 @@ Currently 3 types of metrics are supported:
 - Euclidean normalized (default). Standard euclidean distance with prior normalization of all vectors 
 (making their lengths = 1)
 - Euclidean (without normalization)
-- Cosine - cosine distance calculated as $1 - cos(v_i,v_j)$
+- Cosine - cosine distance calculated as ![formula](https://render.githubusercontent.com/render/math?math=1-cos\(v_i,v_j\))
 
 # Reference
 
@@ -110,7 +110,7 @@ Use this loss function when your model outputs a single solution for all inputs.
 when samples from different classes are put together, pushing them apart. 
 
 
-**Paarameters:** 
+**Parameters:** 
 
 - metric - *string* one of the supported metrics. Default: `euclidean_norm`
 
@@ -118,16 +118,85 @@ when samples from different classes are put together, pushing them apart.
 
 - function that can be plugged into a keras/tensorflow model
 
+Example:
+
+```python
+from triplet_tools.losses import triplet_batch_priming_loss
+
+loss_function = triplet_batch_priming_loss(metric='euclidean')
+
+model.compile('adam', loss_function)
+
+model.fit(...)
+```
+
 ## batch hard loss
 
-This loss function is an implementation of Batch Hard loss proposed in this [paper](https://arxiv.org/abs/1703.07737)
+This loss function is an implementation of Batch Hard loss described in this [paper](https://arxiv.org/abs/1703.07737)
 
 It neither pulls positive pairs to anchor point nor pushes negative pairs away. Instead, it pushes positive and 
 negative vectors apart leaving anchor point alone. 
 
 It is calculated using below formula
 
-$$Loss = \Sum_{i}^N max(d_i^{+} - d_i^{-} + margin, 0) $$
+![formula](https://render.githubusercontent.com/render/math?math=Loss=\sum_{i}^N%20max(d_i^{%2B}-d_i^{-}%2Bmargin,%200))
 
-Which means it pushes positive and negative pairs mined for each anchor point up to a distance = margin. 
-No loss and gradients are generated beyond margin. 
+Which means it maximizes difference between positive and negative distances mined for each anchor point up to a 
+distance = margin. 
+No loss and gradients are generated if the difference is beyond the margin. 
+
+**Parameters:**
+
+- metric - *string* one of the supported metrics. Default: `euclidean_norm`
+- margin - *float* sets parameter margin from above formula. Default: `1.0`
+
+**Returns**
+
+- function that can be plugged into a keras/tensorflow model
+
+Example:
+
+```python
+from triplet_tools.losses import triplet_batch_hard_loss
+
+loss_function = triplet_batch_priming_loss(margin=.4, metric='cosine')
+
+model.compile('adam', loss_function)
+
+model.fit(...)
+```
+
+## batch semihard loss
+
+This loss function is an implementation of Batch Semihard loss described in this [FaceNet paper](https://arxiv.org/abs/1503.03832)
+from Google. 
+
+*There is an existing implementation of triplet loss with batch semihard online mining in 
+[Tensorflow addons](https://www.tensorflow.org/addons/api_docs/python/tfa/losses/triplet_semihard_loss) 
+but tensorflow's implementation is missing parameter `semi_margin` available in this function*
+
+This function is an evolution of batch hard loss with slightly changed negative pair selection: instead of picking the
+nearest vector not belonging to the same class as an anchor vector (hard negative), this function picks not the hardest 
+negative, but so called semi-hard negative. Semi hard negative is a nearest negative which is no closer to an anchor
+poing than its hard positive pair plus additional `semihard_margin`, which can be both positive and negative 
+
+You can read more about that in the paper or in this [blog](https://omoindrot.github.io/triplet-loss)
+
+**Parameters**
+
+- metric - *string* one of the supported metrics. Default: `euclidean_norm`
+- margin - *float* sets parameter margin from above formula. Default: `1.0`
+- semi_margin - *float* moves semi hard cutoff closer (semi_margin < 0) or (semi_margin > 0) 
+further than anchor's hard positive. `Default: 0.0`
+
+Example:
+```python
+from triplet_tools.losses import triplet_batch_semihard_loss
+
+loss_function = triplet_batch_semihard_loss(margin=.4, semi_margin=.05)
+
+model.compile('adam', loss_function)
+
+model.fit(...)
+```
+

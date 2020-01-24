@@ -13,10 +13,7 @@ script:
 jobs:
   include:
     - stage: deploy
-      branches:
-        only:
-          - master
-          - /^v\d+\.\d+\.\d+.*$/
+      if: branch = master OR tag IS present
       python: "3.6"
       script: skip
       install:

@@ -28,4 +28,4 @@ jobs:
       - name: Test with pytest
         run: |
           pip install pytest pytest-cov pytest-dependency
-          PYTHONPATH="$PYTHONPATH:./keras-batchflow" pytest tests --doctest-modules --junitxml=junit/test-results.xml --cov=com --cov-report=xml --cov-report=html
+          PYTHONPATH="$PYTHONPATH:./triplet-tools" pytest tests --doctest-modules --junitxml=junit/test-results.xml --cov=com --cov-report=xml --cov-report=html

@@ -8,7 +8,7 @@ your model into a one-short learning triplet model
 '''
 
 setup(name='triplet-tools',
-      version='0.2.0',
+      use_scm_version=True,
       description='A toolbox for creating and training triplet networks in tensorflow',
       long_description=long_description,
       author='Maxim Scherbak',

@@ -16,6 +16,7 @@ setup(name='triplet-tools',
       url='https://github.com/maxsch3/triplet-toolbox',
       download_url='https://github.com/maxsch3/triplet-toolbox',
       license='MIT',
+      setup_requires=['setuptools_scm'],
       install_requires=['tensorflow>=1.14.0'],
       extras_require={
           'tests': ['pytest',
